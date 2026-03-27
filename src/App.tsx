@@ -22,6 +22,10 @@ import AdminOrdersPage from "@/pages/admin/AdminOrdersPage";
 import AdminProductsPage from "@/pages/admin/AdminProductsPage";
 import AdminSettingsPage from "@/pages/admin/AdminSettingsPage";
 import NotFound from "./pages/NotFound";
+import OrderTrackingPage from '@/pages/OrderTrackingPage';
+import WishlistPage      from '@/pages/WishlistPage';
+import InvoicePage from '@/pages/InvoicePage';
+// import WhatsAppButton    from '@/components/WhatsAppButton';
 
 const queryClient = new QueryClient();
 
@@ -46,6 +50,9 @@ const App = () => (
                 <Route path="/shipping-returns" element={<ShippingReturnsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/terms" element={<TermsPage />} />
+                <Route path="/order-tracking" element={<OrderTrackingPage />} />
+<Route path="/wishlist"       element={<WishlistPage />} />
+<Route path="/invoice" element={<InvoicePage />} />
               </Route>
 
               {/* Admin routes */}
