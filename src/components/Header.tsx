@@ -8,7 +8,7 @@ import { getProducts } from '@/lib/api';
 
 const navLinks = [
   { to: '/shop',           label: 'Shop' },
-  { to: '/order-tracking', label: 'Track Order' },
+  { to: '/order-tracking', label: 'My Orders' },
   { to: '/about',          label: 'About' },
   { to: '/contact',        label: 'Contact' },
 ];

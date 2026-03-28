@@ -96,8 +96,24 @@ export default function CheckoutPage() {
         items:    JSON.stringify(items.map(i => ({ name: i.name, size: i.size, price: i.pricePaise }))),
       });
 
-      localStorage.setItem('lastOrderId', orderNumber);
+  const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+
+const filteredOrders = existingOrders.filter((o: any) => o.id !== orderNumber);
+
+const newOrder = {
+  id: orderNumber,
+  name: form.fullName,
+  total: totalPaise,
+  date: new Date().toISOString(),
+};
+
+localStorage.setItem(
+  'orders',
+  JSON.stringify([newOrder, ...filteredOrders].slice(0, 5))
+);
+
 localStorage.setItem('lastOrderPhone', form.phone);
+
       navigate(`/order-success?${params.toString()}`);
       toast.success('Order placed successfully!');
 

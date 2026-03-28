@@ -1,4 +1,4 @@
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { formatPrice, SHIPPING_PAISE } from '@/data/products';
 
 interface OrderItem {
@@ -22,13 +22,10 @@ export default function InvoicePage() {
   const subtotalPaise = totalPaise - SHIPPING_PAISE;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white print:bg-white">
 
-      {/* Print button — hidden when printing */}
-      <div className="print:hidden flex items-center justify-between p-4 border-b bg-cream-dark">
-        <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-          ← Back to site
-        </Link>
+      {/* Top bar (hidden in print) */}
+      <div className="print:hidden flex items-center justify-end p-4 border-b bg-cream-dark">
         <button
           onClick={() => window.print()}
           className="btn-gold text-xs py-2 px-6"
@@ -37,8 +34,8 @@ export default function InvoicePage() {
         </button>
       </div>
 
-      {/* Invoice */}
-      <div className="max-w-2xl mx-auto p-8 md:p-12">
+      {/* Invoice (print area) */}
+      <div className="max-w-2xl mx-auto p-8 md:p-12 invoice-print">
 
         {/* Header */}
         <div className="flex justify-between items-start mb-12">
@@ -55,7 +52,7 @@ export default function InvoicePage() {
           </div>
         </div>
 
-        {/* Order + Customer info */}
+        {/* Customer + Order */}
         <div className="grid grid-cols-2 gap-8 mb-10">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2">Bill To</p>
@@ -71,7 +68,7 @@ export default function InvoicePage() {
           </div>
         </div>
 
-        {/* Items table */}
+        {/* Items */}
         <table className="w-full mb-8">
           <thead>
             <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
@@ -102,21 +99,25 @@ export default function InvoicePage() {
               <span>Shipping</span>
               <span>{formatPrice(SHIPPING_PAISE)}</span>
             </div>
-            <div className="flex justify-between py-3 font-bold text-gray-900 text-base"
-              style={{ borderTop: '2px solid #e5e7eb' }}>
+            <div
+              className="flex justify-between py-3 font-bold text-gray-900 text-base"
+              style={{ borderTop: '2px solid #e5e7eb' }}
+            >
               <span>Total</span>
               <span style={{ color: '#c49a3c' }}>{formatPrice(totalPaise)}</span>
             </div>
           </div>
         </div>
 
-        {/* Payment note */}
-        <div className="p-4 rounded mb-8 text-sm text-amber-800"
-          style={{ backgroundColor: '#fffbeb', border: '1px solid #fcd34d' }}>
+        {/* Payment */}
+        <div
+          className="p-4 rounded mb-8 text-sm text-amber-800"
+          style={{ backgroundColor: '#fffbeb', border: '1px solid #fcd34d' }}
+        >
           <p className="font-semibold mb-1">Payment Pending</p>
           <p className="text-xs">
             Our team will contact you on WhatsApp (+91 94272 71597) to collect payment
-            via UPI/bank transfer before your order is dispatched.
+            via UPI/bank transfer before dispatch.
           </p>
         </div>
 

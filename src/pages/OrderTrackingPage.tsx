@@ -2,8 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { Search, Package, Truck, CheckCircle, Clock, XCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { buildWhatsAppSupportLink } from '@/lib/constants';
+import html2pdf from 'html2pdf.js';
+
 
 const statusSteps = ['confirmed', 'packed', 'shipped', 'delivered'];
+
+
 
 const statusConfig: Record<string, { icon: React.ElementType; color: string; label: string }> = {
   pending:   { icon: Clock,       color: 'text-amber-500',  label: 'Payment Pending' },
@@ -32,6 +36,7 @@ export default function OrderTrackingPage() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError]     = useState('');
+  const [myOrders, setMyOrders] = useState<any[]>([]);
 
   // Fetch order from Supabase
   const fetchOrder = useCallback(async (orderNumber: string, silent = false) => {
@@ -54,6 +59,12 @@ export default function OrderTrackingPage() {
     if (!silent) setLoading(false);
     else setRefreshing(false);
   }, []);
+
+
+  useEffect(() => {
+  const stored = JSON.parse(localStorage.getItem('orders') || '[]');
+  setMyOrders(stored);
+}, []);
 
   useEffect(() => {
   const params = new URLSearchParams(window.location.search);
@@ -95,9 +106,36 @@ export default function OrderTrackingPage() {
     await fetchOrder(query);
   }
 
+  function handleDownloadInvoice() {
+  const element = document.getElementById('invoice-download');
+
+  if (!element) return;
+
+  const opt = {
+    margin: 0,
+    filename: `${order.order_number}.pdf`,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'px', format: 'a4', orientation: 'portrait' },
+  };
+
+  html2pdf().set(opt).from(element).save();
+}
+
   const currentStepIndex = order ? statusSteps.indexOf(order.status) : -1;
+  const orderDate = order
+  ? new Date(order.created_at).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  : '';
+  const address = order
+  ? `${order.address_line1}${order.address_line2 ? ', ' + order.address_line2 : ''}, ${order.city}, ${order.state} - ${order.pincode}`
+  : '';
 
   return (
+    <>
     <div className="container-custom py-16 md:py-24 max-w-2xl mx-auto">
       <div className="text-center mb-10">
         <p className="section-subheading mb-2">Track Your Order</p>
@@ -106,6 +144,27 @@ export default function OrderTrackingPage() {
           Enter your order number (e.g. HMB-20240315-4821) to see your live order status.
         </p>
       </div>
+
+      {/* Your Orders Section */}
+{myOrders.length > 0 && (
+  <div className="mb-8 border border-border p-4">
+    <p className="text-xs uppercase text-muted-foreground mb-3">Your Orders</p>
+
+    {myOrders.map((o, i) => (
+      <div
+        key={i}
+        onClick={() => {
+          setQuery(o.id);
+          fetchOrder(o.id);
+        }}
+        className="text-sm cursor-pointer hover:text-primary mb-2"
+      >
+        {o.id} — ₹{o.total / 100}
+      </div>
+    ))}
+  </div>
+)}
+
 
       <form onSubmit={handleSearch} className="flex gap-3 mb-10">
         <input
@@ -227,6 +286,7 @@ export default function OrderTrackingPage() {
                     const current = i === currentStepIndex;
                     const cfg     = statusConfig[step];
                     const Icon    = cfg.icon;
+                    
                     return (
                       <div key={step} className="flex flex-col items-center gap-2">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 border-2 transition-all duration-500 ${
@@ -249,6 +309,14 @@ export default function OrderTrackingPage() {
             </div>
           )}
 
+          {/* Download Invoice */}
+<button
+  onClick={handleDownloadInvoice}
+  className="btn-outline-gold inline-block w-full text-center"
+>
+  Download Invoice
+</button>
+
           {/* WhatsApp support */}
           <div className="pt-4 border-t border-border">
             <a
@@ -263,5 +331,135 @@ export default function OrderTrackingPage() {
         </div>
       )}
     </div>
+
+    {/* Hidden Invoice */}
+        <div
+      id="invoice-download"
+      style={{
+        position: 'fixed',
+        left: '-9999px',
+        top: 0,
+        width: '800px',
+        background: 'white'
+      }}
+    ><div
+      style={{
+        width: '800px',
+        padding: '40px',
+        fontFamily: 'serif',
+        color: '#111',
+        background: '#fff'
+      }}
+    >
+    
+      {/* Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
+        <div>
+          <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>
+            HM <span style={{ color: '#c49a3c' }}>Bangles</span>
+          </h1>
+          <p style={{ fontSize: '12px', color: '#666' }}>Rajkot, Gujarat, India</p>
+          <p style={{ fontSize: '12px', color: '#666' }}>WhatsApp: +91 94272 71597</p>
+        </div>
+    
+        <div style={{ textAlign: 'right' }}>
+          <h2 style={{ fontSize: '22px', fontWeight: 'bold' }}>INVOICE</h2>
+          <p style={{ fontSize: '12px', color: '#666' }}>{orderDate}</p>
+        </div>
+      </div>
+    
+      {/* Info */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '30px' }}>
+        <div>
+          <p style={{ fontSize: '10px', color: '#999', marginBottom: '6px' }}>BILL TO</p>
+          <p style={{ fontWeight: '600' }}>{order?.customer_name}</p>
+          <p style={{ fontSize: '12px', color: '#555' }}>{address}</p>
+        </div>
+    
+        <div style={{ textAlign: 'right' }}>
+          <p style={{ fontSize: '10px', color: '#999', marginBottom: '6px' }}>ORDER DETAILS</p>
+          <p style={{ fontSize: '12px', color: '#666' }}>Order No.</p>
+          <p style={{ fontWeight: '600' }}>{order?.order_number}</p>
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>Date</p>
+          <p style={{ fontSize: '12px' }}>{orderDate}</p>
+        </div>
+      </div>
+    
+      {/* Table */}
+      <table style={{ width: '100%', marginBottom: '30px', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ borderBottom: '2px solid #eee' }}>
+            <th style={{ textAlign: 'left', fontSize: '10px', color: '#999', paddingBottom: '8px' }}>ITEM</th>
+            <th style={{ textAlign: 'center', fontSize: '10px', color: '#999' }}>SIZE</th>
+            <th style={{ textAlign: 'right', fontSize: '10px', color: '#999' }}>PRICE</th>
+          </tr>
+        </thead>
+    
+        <tbody>
+          {order?.order_items.map((item, i) => (
+  <tr key={i}>
+    <td style={{ padding: '12px 0' }}>{item.product_name}</td>
+    <td style={{ textAlign: 'center' }}>{item.size}</td>
+    <td style={{ textAlign: 'right' }}>
+      ₹{(order.total_paise / 100).toFixed(2)}
+    </td>
+  </tr>
+))}
+        </tbody>
+      </table>
+    
+      {/* Totals */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '30px' }}>
+        <div style={{ width: '200px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+            <span>Subtotal</span>
+            <span>₹{(subtotalPaise / 100).toFixed(2)}</span>
+          </div>
+    
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+            <span>Shipping</span>
+            <span>₹{(SHIPPING_PAISE / 100).toFixed(2)}</span>
+          </div>
+    
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontWeight: 'bold',
+            borderTop: '2px solid #eee',
+            paddingTop: '8px'
+          }}>
+            <span>Total</span>
+            <span style={{ color: '#c49a3c' }}>
+              ₹{(totalPaise / 100).toFixed(2)}
+            </span>
+          </div>
+        </div>
+      </div>
+    
+      {/* Payment */}
+      <div style={{
+        background: '#fff8e1',
+        border: '1px solid #facc15',
+        padding: '12px',
+        fontSize: '12px',
+        marginBottom: '30px'
+      }}>
+        <strong>Payment Pending</strong>
+        <p style={{ marginTop: '4px' }}>
+          Our team will contact you on WhatsApp (+91 94272 71597) to collect payment before dispatch.
+        </p>
+      </div>
+    
+      {/* Footer */}
+      <div style={{ textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+        <p style={{ fontSize: '16px', marginBottom: '4px' }}>Thank you for your order!</p>
+        <p style={{ fontSize: '12px', color: '#666' }}>
+          HM Bangles · Rajkot, Gujarat · hmbangles.in
+        </p>
+      </div>
+    
+    </div>
+        </div>
+        </>
   );
 } 
