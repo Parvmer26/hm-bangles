@@ -79,7 +79,7 @@ export default function Header() {
         </button>
 
         {/* Logo */}
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
+        <Link to="/" className="flex-1 flex justify-center md:flex-none md:justify-start">
           <h1 className="font-serif text-xl md:text-2xl font-semibold tracking-wide text-foreground">
             HM <span className="gold-text">Bangles</span>
           </h1>
@@ -99,7 +99,7 @@ export default function Header() {
         </nav>
 
         {/* Right icons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 md:gap-2">
 
           {/* Search */}
           <div ref={searchRef} className="relative">

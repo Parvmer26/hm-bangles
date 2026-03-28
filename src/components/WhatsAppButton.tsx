@@ -3,7 +3,7 @@ import { WHATSAPP_LINK } from '@/data/products';
 
 export default function WhatsAppButton() {
   return (
-    
+    <a
       href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hi HM Bangles! I have a question.')}`}
       target="_blank"
       rel="noopener noreferrer"

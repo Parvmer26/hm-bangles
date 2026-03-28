@@ -15,7 +15,7 @@ export const SHIPPING = {
 
 export function buildWhatsAppOrderLink(orderNumber: string) {
   const message = encodeURIComponent(
-    `Hi HM Bangles! 👋\n\nI just placed an order.\nOrder: ${orderNumber}\n\nPlease confirm.`
+    `Hi HM Bangles!\n\nI just placed an order.\nOrder: ${orderNumber}\n\nPlease confirm.`
   )
   return `https://wa.me/919427271597?text=${message}`
 }
@@ -33,4 +33,22 @@ export function generateOrderNumber(): string {
   const d = new Date().toISOString().slice(0, 10).replace(/-/g, "")
   const rand = Math.floor(1000 + Math.random() * 9000)
   return `HMB-${d}-${rand}`
+}
+
+export function buildOrderConfirmationMessage(
+  name: string,
+  orderId: string,
+  amount: number
+) {
+  return `Hi ${name}
+
+Your order is confirmed!
+
+Order ID: ${orderId}
+Amount: ₹${amount}
+
+Track here:
+https://yourwebsite.com/order-tracking?order=${orderId}
+
+Thank you for shopping with HM Bangles.`;
 }

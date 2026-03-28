@@ -77,35 +77,33 @@ export default function HomePage() {
       <title>HM Bangles — Premium Acrylic Bangles from Rajkot</title>
       <meta name="description" content="Discover handcrafted premium acrylic bangles from Rajkot, Gujarat." />
 
-      {/* ── Hero ── */}
-      <section className="relative h-[85vh] md:h-[90vh] overflow-hidden">
-        <img
-          src={heroImage}
-          alt="Premium acrylic bangles by HM Bangles"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-        <div className="relative h-full flex items-end pb-16 md:pb-24">
-          <div className="container-custom">
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <h2 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light text-foreground leading-[1.1] mb-4">
-                The Art of<br />the <span className="italic gold-text">Bangle</span>
-              </h2>
-              <p className="text-base md:text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">
-                Curated acrylic statements crafted for the modern woman
-              </p>
-              <div className="flex gap-4 flex-wrap">
-                <Link to="/shop" className="btn-gold inline-block">Shop Now</Link>
-                <Link to="/order-tracking" className="btn-outline-gold inline-block">Track Order</Link>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+     {/* ── Hero ── */}
+<section className="relative h-[85vh] md:h-[90vh] overflow-hidden">
+  <img
+    src={heroImage}
+    alt="Premium acrylic bangles by HM Bangles"
+    className="absolute inset-0 w-full h-full object-cover"
+  />
+  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
+  <div className="relative h-full flex items-end pb-16 md:pb-24">
+    <div className="container-custom w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="max-w-xl"
+      >
+        <h2 className="font-serif text-4xl md:text-7xl lg:text-8xl font-light text-foreground leading-[1.1] mb-4">
+          The Art of<br />the <span className="italic gold-text">Bangle</span>
+        </h2>
+        <p className="text-sm md:text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">
+          Curated acrylic statements crafted for the modern woman
+        </p>
+        <Link to="/shop" className="btn-gold inline-block">Shop Now</Link>
+      </motion.div>
+    </div>
+  </div>
+</section>
 
       {/* ── Trust badges ── */}
       <section className="py-10 border-b border-border bg-cream-dark">

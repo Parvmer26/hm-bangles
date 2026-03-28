@@ -39,12 +39,16 @@ export async function getOrders() {
   return data
 }
 
-export async function updateOrderStatus(id: string, status: string) {
+export async function updateOrderStatus(orderId: string, status: string) {
   const { error } = await supabase
     .from('orders')
     .update({ status })
-    .eq('id', id)
-  if (error) throw error
+    .eq('id', orderId);
+
+  if (error) {
+    console.error('UPDATE ERROR:', error);
+    throw error;
+  }
 }
 
 export async function getAllProducts() {

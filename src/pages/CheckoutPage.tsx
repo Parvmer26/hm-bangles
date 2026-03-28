@@ -96,6 +96,8 @@ export default function CheckoutPage() {
         items:    JSON.stringify(items.map(i => ({ name: i.name, size: i.size, price: i.pricePaise }))),
       });
 
+      localStorage.setItem('lastOrderId', orderNumber);
+localStorage.setItem('lastOrderPhone', form.phone);
       navigate(`/order-success?${params.toString()}`);
       toast.success('Order placed successfully!');
 

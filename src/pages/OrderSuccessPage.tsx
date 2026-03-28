@@ -2,12 +2,14 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Printer, Package } from 'lucide-react';
 import { WHATSAPP_LINK, formatPrice, SHIPPING_PAISE } from '@/data/products';
+import { buildOrderConfirmationMessage } from '@/lib/constants';
 
 interface OrderItem {
   name: string;
   size: string;
   price: number;
 }
+
 
 export default function OrderSuccessPage() {
   const [params]    = useSearchParams();
@@ -25,9 +27,15 @@ export default function OrderSuccessPage() {
 
   const subtotalPaise = totalPaise - SHIPPING_PAISE;
 
+  
+
   const whatsappMsg = encodeURIComponent(
-    `Hi HM Bangles! I just placed order ${orderNumber}. Please confirm my order and share payment details.`
-  );
+  buildOrderConfirmationMessage(
+    customerName || 'Customer',
+    orderNumber,
+    totalPaise / 100
+  )
+);
 
   const invoiceParams = new URLSearchParams({
     order:   orderNumber,
@@ -37,6 +45,11 @@ export default function OrderSuccessPage() {
     items:   itemsRaw,
     date:    orderDate,
   });
+
+  function copyOrderId() {
+  navigator.clipboard.writeText(orderNumber);
+}
+  
 
   return (
     <div className="container-custom py-20 md:py-28 max-w-lg mx-auto">
@@ -66,7 +79,7 @@ export default function OrderSuccessPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <h1 className="font-serif text-3xl md:text-4xl font-medium mb-4">Order Confirmed!</h1>
           <p className="text-sm text-muted-foreground uppercase tracking-[0.15em] mb-2">Order Number</p>
-          <p className="font-serif text-xl gold-text mb-2">{orderNumber}</p>
+<p onClick={copyOrderId}className="font-serif text-xl gold-text mb-2 cursor-pointer">{orderNumber}</p>
           <p className="text-xs text-muted-foreground">{orderDate}</p>
         </motion.div>
       </div>
