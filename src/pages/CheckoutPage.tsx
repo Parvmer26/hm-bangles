@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span>{formatPrice(SHIPPING_PAISE)}</span>
+                  <span>{formatPrice(SHIPPING.chargePaise)}</span>
                 </div>
                 <div className="border-t border-border pt-3 flex justify-between font-medium text-foreground text-base">
                   <span>Total</span>
