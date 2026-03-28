@@ -28,6 +28,11 @@ interface Order {
   city: string;
   state: string;
   order_items: { product_name: string; size: string }[];
+  subtotal_paise: number;
+shipping_paise: number;
+address_line1: string;
+address_line2?: string;
+pincode: string;
 }
 
 export default function OrderTrackingPage() {
@@ -106,21 +111,38 @@ export default function OrderTrackingPage() {
     await fetchOrder(query);
   }
 
-  function handleDownloadInvoice() {
+  const handleDownloadInvoice = async () => {
   const element = document.getElementById('invoice-download');
+  if (!element || !order) return;
 
-  if (!element) return;
+  // 👇 bring invoice into view
+  element.style.position = 'static';
+  element.style.left = '0';
+  element.style.top = '0';
+
+  await new Promise((res) => setTimeout(res, 600)); // wait render
 
   const opt = {
     margin: 0,
-    filename: `${order.order_number}.pdf`,
+    filename: `Invoice-${order.order_number}.pdf`,
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'px', format: 'a4', orientation: 'portrait' },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait',
+    },
   };
 
-  html2pdf().set(opt).from(element).save();
-}
+  await html2pdf().set(opt).from(element).save();
+
+  // 👇 hide again
+  element.style.position = 'fixed';
+  element.style.left = '-9999px';
+};
 
   const currentStepIndex = order ? statusSteps.indexOf(order.status) : -1;
   const orderDate = order
@@ -333,15 +355,16 @@ export default function OrderTrackingPage() {
     </div>
 
     {/* Hidden Invoice */}
-        <div
-      id="invoice-download"
-      style={{
-        position: 'fixed',
-        left: '-9999px',
-        top: 0,
-        width: '800px',
-        background: 'white'
-      }}
+        {order && (
+  <div
+  id="invoice-download"
+     style={{
+  position: 'fixed',
+  left: '-9999px',
+  top: 0,
+  width: '800px',
+  background: 'white'
+}}
     ><div
       style={{
         width: '800px',
@@ -356,8 +379,8 @@ export default function OrderTrackingPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '40px' }}>
         <div>
           <h1 style={{ fontSize: '28px', marginBottom: '4px' }}>
-            HM <span style={{ color: '#c49a3c' }}>Bangles</span>
-          </h1>
+  HM <span style={{ color: '#c49a3c' }}>Bangles</span>
+</h1>
           <p style={{ fontSize: '12px', color: '#666' }}>Rajkot, Gujarat, India</p>
           <p style={{ fontSize: '12px', color: '#666' }}>WhatsApp: +91 94272 71597</p>
         </div>
@@ -401,7 +424,7 @@ export default function OrderTrackingPage() {
     <td style={{ padding: '12px 0' }}>{item.product_name}</td>
     <td style={{ textAlign: 'center' }}>{item.size}</td>
     <td style={{ textAlign: 'right' }}>
-      ₹{(order.total_paise / 100).toFixed(2)}
+      ₹{((order.total_paise / order.order_items.length) / 100).toFixed(2)}
     </td>
   </tr>
 ))}
@@ -413,12 +436,12 @@ export default function OrderTrackingPage() {
         <div style={{ width: '200px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
             <span>Subtotal</span>
-            <span>₹{(subtotalPaise / 100).toFixed(2)}</span>
+            <span>₹{((order?.subtotal_paise || 0) / 100).toFixed(2)}</span>
           </div>
     
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
             <span>Shipping</span>
-            <span>₹{(SHIPPING_PAISE / 100).toFixed(2)}</span>
+            <span>₹{((order?.shipping_paise || 0) / 100).toFixed(2)}</span>
           </div>
     
           <div style={{
@@ -430,7 +453,7 @@ export default function OrderTrackingPage() {
           }}>
             <span>Total</span>
             <span style={{ color: '#c49a3c' }}>
-              ₹{(totalPaise / 100).toFixed(2)}
+             ₹{((order?.total_paise || 0) / 100).toFixed(2)}
             </span>
           </div>
         </div>
@@ -460,6 +483,7 @@ export default function OrderTrackingPage() {
     
     </div>
         </div>
+        )}
         </>
   );
 } 

@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
-import { formatPrice, SHIPPING_PAISE, generateOrderNumber } from '@/data/products';
+import { formatPrice } from '@/data/products';
+import { generateOrderNumber, SHIPPING } from '@/lib/constants';
 import { INDIAN_STATES } from '@/data/states';
 import { createOrder } from '@/lib/api';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { buildWhatsAppOrderLink } from '@/lib/constants';
 
 const checkoutSchema = z.object({
   fullName:     z.string().trim().min(2, 'Name is required').max(100),
@@ -23,7 +25,7 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 export default function CheckoutPage() {
   const { items, subtotalPaise, clearCart } = useCart();
   const navigate    = useNavigate();
-  const totalPaise  = subtotalPaise + SHIPPING_PAISE;
+  const totalPaise = subtotalPaise + SHIPPING.chargePaise;
   const [errors, setErrors]   = useState<Partial<Record<keyof CheckoutForm, string>>>({});
   const [loading, setLoading] = useState(false);
 
@@ -66,7 +68,7 @@ export default function CheckoutPage() {
       await createOrder({
         orderNumber,
         subtotalPaise,
-        shippingPaise: SHIPPING_PAISE,
+        shippingPaise: SHIPPING.chargePaise,
         totalPaise,
         customerName:  form.fullName,
         customerPhone: form.phone,
@@ -86,6 +88,8 @@ export default function CheckoutPage() {
       // Clear cart and redirect to success page with all order info
       clearCart();
 
+      window.open(buildWhatsAppOrderLink(orderNumber), '_blank');
+
       // Pass order details via URL params for receipt
       const params = new URLSearchParams({
         order:    orderNumber,
@@ -96,23 +100,23 @@ export default function CheckoutPage() {
         items:    JSON.stringify(items.map(i => ({ name: i.name, size: i.size, price: i.pricePaise }))),
       });
 
-  const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+//   const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
 
-const filteredOrders = existingOrders.filter((o: any) => o.id !== orderNumber);
+// const filteredOrders = existingOrders.filter((o: any) => o.id !== orderNumber);
 
-const newOrder = {
-  id: orderNumber,
-  name: form.fullName,
-  total: totalPaise,
-  date: new Date().toISOString(),
-};
+// const newOrder = {
+//   id: orderNumber,
+//   name: form.fullName,
+//   total: totalPaise,
+//   date: new Date().toISOString(),
+// };
 
-localStorage.setItem(
-  'orders',
-  JSON.stringify([newOrder, ...filteredOrders].slice(0, 5))
-);
+// localStorage.setItem(
+//   'orders',
+//   JSON.stringify([newOrder, ...filteredOrders].slice(0, 5))
+// );
 
-localStorage.setItem('lastOrderPhone', form.phone);
+// localStorage.setItem('lastOrderPhone', form.phone);
 
       navigate(`/order-success?${params.toString()}`);
       toast.success('Order placed successfully!');

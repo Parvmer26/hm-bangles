@@ -157,7 +157,14 @@ export async function createOrder(order: {
     .select('id')
     .single()
 
-  if (orderError || !newOrder) throw orderError
+  if (orderError) {
+  console.error("ORDER ERROR:", orderError);
+  throw orderError;
+}
+
+if (!newOrder) {
+  throw new Error("Order not created");
+}
 
   const { error: itemsError } = await supabase
     .from('order_items')
